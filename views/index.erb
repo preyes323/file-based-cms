@@ -1,13 +1,4 @@
 <div>
-  <% if session[:error] %>
-    <p><%= session.delete(:error) %></p>
-  <% end %>
-  <% if session[:success] %>
-    <p><%= session.delete(:success) %></p>
-  <% end %>
-</div>
-
-<div>
   <ul>
     <% @files.each do |file| %>
       <li>
