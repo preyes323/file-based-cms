@@ -3,6 +3,7 @@ GEM
   specs:
     backports (3.6.8)
     erubis (2.7.0)
+    minitest (5.8.4)
     multi_json (1.11.2)
     puma (3.1.0)
     rack (1.6.4)
@@ -10,6 +11,7 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    redcarpet (3.3.4)
     sinatra (1.4.7)
       rack (~> 1.5)
       rack-protection (~> 1.4)
@@ -21,6 +23,7 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
+    test-spec (0.10.0)
     tilt (2.0.2)
 
 PLATFORMS
@@ -28,9 +31,12 @@ PLATFORMS
 
 DEPENDENCIES
   erubis
+  minitest
   puma
+  redcarpet
   sinatra (~> 1.4.6)
   sinatra-contrib
+  test-spec
 
 BUNDLED WITH
    1.10.6
