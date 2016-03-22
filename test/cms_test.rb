@@ -97,4 +97,41 @@ describe 'File-base CMS test' do
     last_response['Content-Type'].should.equal 'text/plain'
     last_response.body.should.include 'new content'
   end
+
+  it 'displays a page for creating a new document' do
+    get '/document/new'
+
+    last_response.status.should.equal 200
+    last_response.body.should.include '<form'
+    last_response.body.should.include %q(<button type='submit')
+    last_response.body.should.include 'Add a new document:'
+  end
+
+  it 'creates a new document and redirects the user to the index page' do
+    post '/document/new', filename: 'New Document.txt'
+
+    last_response.status.should.equal 302
+    get last_response['Location']
+
+    last_response.body.should.include 'New Document.txt has been created.'
+  end
+
+  it 'fails to create a new document for empty name and informs the user' do
+    post '/document/new', filename: ''
+
+    last_response.status.should.equal 302
+    get last_response['Location']
+
+
+    last_response.body.should.include 'Failed to create new document'
+  end
+
+  it 'fails to create a new document for no extension  and informs the user' do
+    post '/document/new', filename: 'New Document'
+
+    last_response.status.should.equal 302
+    get last_response['Location']
+
+    last_response.body.should.include 'Failed to create new document'
+  end
 end

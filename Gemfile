@@ -7,6 +7,8 @@ gem "erubis"
 gem "minitest"
 gem "test-spec"
 gem "redcarpet"
+gem "pry"
+gem "pry-byebug"
 
 group :production do
   gem "puma"

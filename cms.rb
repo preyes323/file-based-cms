@@ -41,6 +41,23 @@ get '/:filename/edit' do
   erb :edit
 end
 
+get '/document/new' do
+  erb :new
+end
+
+post '/document/new' do
+  filename = params[:filename]
+
+  if !filename.empty? && (filename =~ /.txt/ || filename =~ /.md/)
+    File.new(File.join(data_path, filename), 'w')
+    session[:success] = "#{params[:filename]} has been created."
+  else
+    session[:error] = 'Failed to create new document'
+  end
+
+  redirect '/'
+end
+
 post '/:filename/edit' do
   file_path = File.join(data_path, params[:filename])
   File.write(file_path, params[:file_contents])
@@ -50,17 +67,12 @@ post '/:filename/edit' do
 end
 
 error 404 do
-  session[:error] = 'Sorry the file you are looking for does not exist'
+  session[:error] = 'Sorry the file you are looking for does not exist (404)'
   redirect '/'
 end
 
 error 500 do
-  session[:error] = 'Sorry the file you are looking for does not exist'
-  redirect '/'
-end
-
-error do
-  session[:error] = 'Sorry there was error - ' + env['sinatra.error'].message
+  session[:error] = 'Sorry the file you are looking for does not exist (500)'
   redirect '/'
 end
 
