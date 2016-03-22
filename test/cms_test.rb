@@ -134,4 +134,24 @@ describe 'File-base CMS test' do
 
     last_response.body.should.include 'Failed to create new document'
   end
+
+  it 'deletes a document' do
+    create_document 'changes.txt', 'Duis'
+
+    post '/changes.txt/delete'
+
+    last_response.status.should.equal 302
+    get last_response['Location']
+
+    last_response.body.should.include 'changes.txt has been deleted.'
+  end
+
+  it 'gives an option to delete in the index page' do
+    create_document 'changes.txt', 'Duis'
+
+    get '/'
+
+    last_response.body.should.include 'delete'
+    last_response.body.should.include '<a href'
+  end
 end

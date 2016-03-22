@@ -28,6 +28,27 @@ get '/' do
   erb :index
 end
 
+get '/users/signin' do
+  erb :signin
+end
+
+post '/users/signin' do
+  @username = params[:username]
+  @password = params[:password]
+  if valid_user?
+    session[:signed_in] = @username
+    session[:success] = "#{@username} is now logged in."
+    redirect '/'
+  else
+    session[:error] = 'Invalid Credentials'
+    redirect '/users/signin'
+  end
+get '/users/signout' do
+  session[:succes] = "#{session.delete[:signed_in]} has been signed out."
+
+  redirect '/'
+end
+
 get '/:filename' do
   file_path = File.join(data_path, params[:filename])
   load_file_content(file_path)
@@ -43,6 +64,15 @@ end
 
 get '/document/new' do
   erb :new
+end
+
+post '/:filename/delete' do
+  @file = params[:filename]
+  file_path = File.join(data_path, @file)
+  File.delete(file_path)
+
+  session[:success] = "#{@file} has been deleted."
+  redirect '/'
 end
 
 post '/document/new' do
@@ -95,5 +125,9 @@ helpers do
 
   def render_markdown(text)
     Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(text)
+  end
+
+  def logged_in?
+    session[:signed_in]
   end
 end

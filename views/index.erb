@@ -4,8 +4,16 @@
       <li>
         <a href="/<%= file %>"><%= file %></a>
         <a href="/<%= file %>/edit">Edit</a>
+        <form class="inline" method="post" action="/<%= file %>/delete">
+          <button type="submit">delete</button>
+        </form>
       </li>
     <% end %>
   </ul>
   <a href='/document/new'>New Document</a>
+  <% unless logged_in? %>
+    <form action='/users/signin' method='get'>
+      <button type='submit'>Sign in</button>
+    </form>
+  <% end %>
 </div>
