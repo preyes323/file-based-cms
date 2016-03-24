@@ -9,6 +9,7 @@ gem "test-spec"
 gem "redcarpet"
 gem "pry"
 gem "pry-byebug"
+gem "bcrypt"
 
 group :production do
   gem "puma"

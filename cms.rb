@@ -4,6 +4,8 @@ require 'tilt/erubis'
 require 'sinatra/content_for'
 require 'redcarpet'
 require 'pry'
+require 'yaml'
+require 'bcrypt'
 
 configure do
   enable :sessions
@@ -20,6 +22,15 @@ def data_path
   end
 end
 
+def load_user_credentials
+  credentials_path = if ENV['RACK_ENV'] == 'test'
+                       File.expand_path('../test/users.yml', __FILE__)
+                     else
+                       File.expand_path('../users.yml', __FILE__)
+                     end
+  YAML.load_file(credentials_path)
+end
+
 before do
   @files = load_files(File.join(data_path, '*'))
 end
@@ -32,29 +43,39 @@ get '/users/signin' do
   erb :signin
 end
 
+post '/users/signout' do
+  session[:sucess] = "#{session.delete(:signed_in)} has been logged out."
+
+  redirect '/'
+end
+
 post '/users/signin' do
   @username = params[:username]
   @password = params[:password]
-  if valid_user?
+
+  if valid_user?(@username, @password)
     session[:signed_in] = @username
     session[:success] = "#{@username} is now logged in."
     redirect '/'
   else
     session[:error] = 'Invalid Credentials'
-    redirect '/users/signin'
+    erb :signin
   end
-get '/users/signout' do
-  session[:succes] = "#{session.delete[:signed_in]} has been signed out."
-
-  redirect '/'
 end
 
 get '/:filename' do
   file_path = File.join(data_path, params[:filename])
-  load_file_content(file_path)
+
+  if File.exist? file_path
+    load_file_content(file_path)
+  else
+    status 404
+  end
 end
 
 get '/:filename/edit' do
+  require_signed_in
+
   @file = params[:filename]
   file_path = File.join(data_path, @file)
   @content = File.read(file_path)
@@ -63,10 +84,13 @@ get '/:filename/edit' do
 end
 
 get '/document/new' do
+  require_signed_in
   erb :new
 end
 
 post '/:filename/delete' do
+  require_signed_in
+
   @file = params[:filename]
   file_path = File.join(data_path, @file)
   File.delete(file_path)
@@ -76,6 +100,8 @@ post '/:filename/delete' do
 end
 
 post '/document/new' do
+  require_signed_in
+
   filename = params[:filename]
 
   if !filename.empty? && (filename =~ /.txt/ || filename =~ /.md/)
@@ -98,11 +124,6 @@ end
 
 error 404 do
   session[:error] = 'Sorry the file you are looking for does not exist (404)'
-  redirect '/'
-end
-
-error 500 do
-  session[:error] = 'Sorry the file you are looking for does not exist (500)'
   redirect '/'
 end
 
@@ -129,5 +150,23 @@ helpers do
 
   def logged_in?
     session[:signed_in]
+  end
+
+  def require_signed_in
+    unless logged_in?
+      session[:error] = 'You must be logged in to do that'
+      redirect '/'
+    end
+  end
+
+  def valid_user?(username, password)
+    credentials = load_user_credentials
+
+    if credentials.key?(username)
+      bcrypt_password = BCrypt::Password.new(credentials[username])
+      bcrypt_password == password
+    else
+      false
+    end
   end
 end

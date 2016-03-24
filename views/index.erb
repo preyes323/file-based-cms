@@ -11,7 +11,12 @@
     <% end %>
   </ul>
   <a href='/document/new'>New Document</a>
-  <% unless logged_in? %>
+
+  <% if logged_in? %>
+    <form action='/users/signout' method='post'>
+      <button type='submit'>Sign out</button>
+    </form>
+  <% else %>
     <form action='/users/signin' method='get'>
       <button type='submit'>Sign in</button>
     </form>
